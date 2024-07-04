@@ -1,56 +1,41 @@
+import java.util.ArrayList;
+import java.util.Arrays;
+
 public class Equation {
-    private Term[] terms;
+    public Equation(String equationString) {
+        String[] terms = generateTerms((equationString.replace(" ", "") + "+").toCharArray());
+    }
 
-    public Equation(String equationString){
-        equationString = equationString.replace(" ", "");
-        String[] equationTokens;
-        if(equationString.charAt(0) == '-'){
-            equationTokens = equationString.substring(1).split("[\\+-]");
-            equationTokens[0] = "-" + equationTokens[0];
-        } else {
-            equationTokens = equationString.split("[\\+-]");
-        }
-        terms = new Term[equationTokens.length];
+    private String[] generateTerms(char[] equation) {
+        ArrayList<String> terms = new ArrayList<>();
+        String term = "";
 
-        for(int i = 0; i < terms.length; i++){
-            String[] t = equationTokens[i].split("-");
-            int index = equationString.indexOf(t[t.length - 1]);
-            String sign = "";
-            String x = "";
-            try{
-                x = equationString.substring(index - 1, index);
-            } catch (IndexOutOfBoundsException e){
-                x = "+";
+        for (char c : equation) {
+            if ("+-".contains(Character.toString(c))) {
+                if (term.length() > 0) {
+                    terms.add(term);
+                }
+                term = (c == '-') ? String.valueOf(c) : "";
+            } else {
+                term += c;
             }
-            sign = x.equals("-") ? x : "";
-            terms[i] = new Term(sign + t[t.length - 1]);
         }
+
+        if (terms.get(0) == "") {
+            terms.remove(0);
+        }
+
+        while (terms.contains("-(")) {
+            int index = terms.indexOf("-(");
+            terms.remove(index);
+            terms.set(index, "-(" + terms.get(index));
+        }
+
+        return terms.toArray(new String[0]);
     }
 
     @Override
     public String toString() {
-        String str = "";
-        for(Term t : terms){
-            str += t.toString() + " + ";
-        }
-
-        return str.substring(0, str.length() - 3);
-    }
-
-    public double getValue(int x){
-        double value = 0.0;
-        for(Term t : terms){
-            value += t.getCoefficient() * (Math.pow(x, t.getExponent()));
-        }
-
-        return value;
-    }
-
-    public static void main(String[] args) {
-        Equation input = new Equation("(-2x)^2 - 3x + 1");
-        // Equation input = new Equation("-1");
-        System.out.println(input);
-        System.out.println(input.getValue(4));
-
+        return "";
     }
 }
